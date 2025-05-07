@@ -5,7 +5,7 @@ import utils.DataTools as dt
 # Keep the same augmentation transforms as the original
 aug_train = torchvision.transforms.Compose([
     torchvision.transforms.Resize(256),
-    torchvision.transforms.RandomCrop(224),
+    #torchvision.transforms.RandomCrop(224),
     torchvision.transforms.RandomHorizontalFlip(),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(
@@ -14,7 +14,7 @@ aug_train = torchvision.transforms.Compose([
 
 aug_test = torchvision.transforms.Compose([
     torchvision.transforms.Resize(256),
-    torchvision.transforms.CenterCrop(224),
+    #torchvision.transforms.CenterCrop(224),
     torchvision.transforms.ToTensor(),
     torchvision.transforms.Normalize(
         [0.5, 0.5, 0.5], [0.25, 0.25, 0.25])
@@ -28,7 +28,7 @@ class CustomDataset:
         
         # Define path functions for each split
         self.trainpath = lambda path, file: os.path.join(self.folder_path, "train", file)
-        self.validpath = lambda path, file: os.path.join(self.folder_path, "validate", file)
+        self.validpath = lambda path, file: os.path.join(self.folder_path, "val", file)
         self.testpath = lambda path, file: os.path.join(self.folder_path, "test", file)
 
     def getDatasets(self, pathfunc, infolist, transform, process=None, datasetfunc=None):

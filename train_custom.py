@@ -12,34 +12,59 @@ import os
 
 np.set_printoptions(precision=3)
 
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description='Train the model on custom dataset')
 
-parser.add_argument('--device', default="cuda:0", type=str)
-parser.add_argument('--modelname', default="xception", type=str)
-parser.add_argument('--distributed', default=False, action='store_true')
+# Dataset arguments
+parser.add_argument('--dataset_path', type=str, default=r"D:\.THESIS\datasets\sample_data",
+                    help='Path to your dataset root directory')
+
+# Model arguments
+parser.add_argument('--device', default="cuda:0", type=str,
+                    help='Device to use (cuda:0 or cpu)')
+parser.add_argument('--modelname', default="xception", type=str,
+                    help='Model name')
+parser.add_argument('--distributed', default=False, action='store_true',
+                    help='Use distributed training')
+
+# Training arguments
+parser.add_argument('--batch_size', default=16, type=int,
+                    help='Batch size for training')
+parser.add_argument('--max_batch', default=500000, type=int,
+                    help='Maximum number of batches to train')
+parser.add_argument('--num_workers', default=4, type=int,
+                    help='Number of workers for data loading')
+parser.add_argument('--logbatch', default=3000, type=int,
+                    help='Log every N batches')
+parser.add_argument('--savebatch', default=30000, type=int,
+                    help='Save model every N batches')
+parser.add_argument('--seed', default=5, type=int,
+                    help='Random seed')
+
+# Learning rate
+parser.add_argument('--lr', default=0.0002, type=float,
+                    help='Learning rate')
+
+# RFM parameters
+parser.add_argument('--eH', default=120, type=int,
+                    help='Maximum height for RFM masking')
+parser.add_argument('--eW', default=120, type=int,
+                    help='Maximum width for RFM masking')
+
+# Model checkpointing
+parser.add_argument('--pin_memory', '-p', default=False, action='store_true',
+                    help='Use pin memory for data loading')
+parser.add_argument('--resume_model', default=None,
+                    help='Path to resume model from')
+parser.add_argument('--resume_optim', default=None,
+                    help='Path to resume optimizer from')
+parser.add_argument('--save_model', default=True, action='store_true',
+                    help='Save model checkpoints')
+parser.add_argument('--save_optim', default=False, action='store_true',
+                    help='Save optimizer checkpoints')
+
+# File naming
 parser.add_argument('--upper', default="xbase", type=str,
-                    help='the prefix used in save files')
-parser.add_argument('--dataset_path', default="./dataset_root", type=str,
-                    help='path to your dataset root directory')
-
-parser.add_argument('--eH', default=120, type=int)
-parser.add_argument('--eW', default=120, type=int)
-
-parser.add_argument('--batch_size', default=16, type=int)
-parser.add_argument('--max_batch', default=500000, type=int)
-parser.add_argument('--num_workers', default=4, type=int)
-parser.add_argument('--logbatch', default=3000, type=int)
-parser.add_argument('--savebatch', default=30000, type=int)
-parser.add_argument('--seed', default=5, type=int)
-
-parser.add_argument('--lr', default=0.0002, type=float, help='learning rate')
-
-parser.add_argument('--pin_memory', '-p', default=False, action='store_true')
-parser.add_argument('--resume_model', default=None)
-parser.add_argument('--resume_optim', default=None)
-
-parser.add_argument('--save_model', default=True, action='store_true')
-parser.add_argument('--save_optim', default=False, action='store_true')
+                    help='Prefix for saved files')
 
 args = parser.parse_args()
 upper = args.upper
@@ -79,6 +104,15 @@ def Log(log):
     f.close()
 
 if __name__ == "__main__":
+    # Print configuration
+    print("\nTraining Configuration:")
+    print(f"Dataset path: {args.dataset_path}")
+    print(f"Batch size: {args.batch_size}")
+    print(f"Learning rate: {args.lr}")
+    print(f"Device: {args.device}")
+    print(f"Model: {args.modelname}")
+    print("----------------------------------------")
+
     Log("\nModel:%s BatchSize:%d lr:%f" % (modelname, args.batch_size, args.lr))
     torch.cuda.set_device(args.device)
     setup_seed(args.seed)
@@ -86,6 +120,7 @@ if __name__ == "__main__":
 
     MAX_TPR_4 = 0.
 
+    # Initialize model
     model = xception(num_classes=2, pretrained=False).cuda()
 
     if args.distributed:
@@ -94,25 +129,32 @@ if __name__ == "__main__":
     optim = Adam(model.parameters(), lr=args.lr, weight_decay=0)
 
     if args.resume_model is not None:
+        print(f"Loading model from {args.resume_model}")
         model.load_state_dict(torch.load(args.resume_model))
     if args.resume_optim is not None:
+        print(f"Loading optimizer from {args.resume_optim}")
         optim.load_state_dict(torch.load(args.resume_optim))
 
     lossfunc = torch.nn.CrossEntropyLoss()
 
-    # Use our custom dataset
+    # Initialize dataset
+    print(f"\nLoading dataset from {args.dataset_path}")
     dataset = CustomDataset(folder_path=args.dataset_path)
 
+    # Load datasets
     trainsetR = dataset.getTrainsetR()
     trainsetF = dataset.getTrainsetF()
-
     validset = dataset.getValidset()
-
     testsetR = dataset.getTestsetR()
     TestsetList, TestsetName = dataset.getsetlist(real=False, setType=2)
 
+    print(f"Training set - Real: {len(trainsetR)} images, Fake: {len(trainsetF)} images")
+    print(f"Validation set: {len(validset)} images")
+    print(f"Test set - Real: {len(testsetR)} images, Fake sets: {len(TestsetList)}")
+
     setup_seed(args.seed)
 
+    # Create data loaders
     traindataloaderR = DataLoader(
         trainsetR,
         batch_size=int(args.batch_size/2),
@@ -154,7 +196,8 @@ if __name__ == "__main__":
             )
         )
 
-    print("Loaded model")
+    print("\nStarting training...")
+    print("----------------------------------------")
 
     batchind = 0
     e = 0
@@ -181,6 +224,10 @@ if __name__ == "__main__":
                 for pointind in maxind:
                     pointx = pointind//imgw
                     pointy = pointind % imgw
+
+                    # Add bounds checking
+                    if pointx >= imgh or pointy >= imgw:
+                        continue
 
                     if imgmask[i][0][pointx][pointy] == 1:
                         maskh = random.randint(1, args.eH)
