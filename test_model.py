@@ -5,6 +5,7 @@ from utils.custom_dataset import CustomDataset
 from torch.utils.data import DataLoader
 import argparse
 import os
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 def test_model(model_path, dataset_path, batch_size=32, device="cuda:0"):
     # Initialize model
@@ -47,19 +48,43 @@ def test_model(model_path, dataset_path, batch_size=32, device="cuda:0"):
     
     # Test on fake images
     sumAUC = sumTPR_2 = sumTPR_3 = sumTPR_4 = 0
+    sumACC = sumPrecision = sumRecall = sumF1 = 0
+    
     for i, tmptestdataloader in enumerate(testdataloaderList):
         loss_f, y_true_f, y_pred_f = Eval(model, lossfunc, tmptestdataloader)
-        ap, acc, AUC, TPR_2, TPR_3, TPR_4 = calRes(
-            torch.cat((y_true_r, y_true_f)), 
-            torch.cat((y_pred_r, y_pred_f))
-        )
+        
+        # Combine real and fake predictions
+        y_true_combined = torch.cat((y_true_r, y_true_f))
+        y_pred_combined = torch.cat((y_pred_r, y_pred_f))
+        
+        # Calculate metrics
+        ap, acc, AUC, TPR_2, TPR_3, TPR_4 = calRes(y_true_combined, y_pred_combined)
+        
+        # Convert to numpy for sklearn metrics
+        y_true_np = y_true_combined.cpu().numpy()
+        y_pred_np = y_pred_combined.argmax(dim=1).cpu().numpy()
+        
+        # Calculate additional metrics
+        precision = precision_score(y_true_np, y_pred_np)
+        recall = recall_score(y_true_np, y_pred_np)
+        f1 = f1_score(y_true_np, y_pred_np)
+        
         print(f"\nResults for {TestsetName[i]}:")
         print(f"AUC: {AUC:.6f}")
+        print(f"Accuracy: {acc:.6f}")
+        print(f"Precision: {precision:.6f}")
+        print(f"Recall: {recall:.6f}")
+        print(f"F1-Score: {f1:.6f}")
         print(f"TPR_2: {TPR_2:.6f}")
         print(f"TPR_3: {TPR_3:.6f}")
         print(f"TPR_4: {TPR_4:.6f}")
         
+        # Sum metrics for averaging
         sumAUC += AUC
+        sumACC += acc
+        sumPrecision += precision
+        sumRecall += recall
+        sumF1 += f1
         sumTPR_2 += TPR_2
         sumTPR_3 += TPR_3
         sumTPR_4 += TPR_4
@@ -67,6 +92,10 @@ def test_model(model_path, dataset_path, batch_size=32, device="cuda:0"):
     if len(testdataloaderList) > 1:
         print("\nAverage Results:")
         print(f"AUC: {sumAUC/len(testdataloaderList):.6f}")
+        print(f"Accuracy: {sumACC/len(testdataloaderList):.6f}")
+        print(f"Precision: {sumPrecision/len(testdataloaderList):.6f}")
+        print(f"Recall: {sumRecall/len(testdataloaderList):.6f}")
+        print(f"F1-Score: {sumF1/len(testdataloaderList):.6f}")
         print(f"TPR_2: {sumTPR_2/len(testdataloaderList):.6f}")
         print(f"TPR_3: {sumTPR_3/len(testdataloaderList):.6f}")
         print(f"TPR_4: {sumTPR_4/len(testdataloaderList):.6f}")
