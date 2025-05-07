@@ -1,0 +1,87 @@
+import torch
+from utils.utils import Eval, calRes
+from pretrainedmodels import xception
+from utils.custom_dataset import CustomDataset
+from torch.utils.data import DataLoader
+import argparse
+import os
+
+def test_model(model_path, dataset_path, batch_size=32, device="cuda:0"):
+    # Initialize model
+    model = xception(num_classes=2, pretrained=False).to(device)
+    model.load_state_dict(torch.load(model_path))
+    model.eval()
+    
+    # Initialize dataset
+    dataset = CustomDataset(folder_path=dataset_path)
+    
+    # Get test sets
+    testsetR = dataset.getTestsetR()
+    TestsetList, TestsetName = dataset.getsetlist(real=False, setType=2)
+    
+    # Create data loaders
+    testdataloaderR = DataLoader(
+        testsetR,
+        batch_size=batch_size,
+        num_workers=4
+    )
+    
+    testdataloaderList = []
+    for tmptestset in TestsetList:
+        testdataloaderList.append(
+            DataLoader(
+                tmptestset,
+                batch_size=batch_size,
+                num_workers=4
+            )
+        )
+    
+    # Loss function
+    lossfunc = torch.nn.CrossEntropyLoss()
+    
+    print("\nTesting Results:")
+    print("----------------------------------------")
+    
+    # Test on real images
+    loss_r, y_true_r, y_pred_r = Eval(model, lossfunc, testdataloaderR)
+    
+    # Test on fake images
+    sumAUC = sumTPR_2 = sumTPR_3 = sumTPR_4 = 0
+    for i, tmptestdataloader in enumerate(testdataloaderList):
+        loss_f, y_true_f, y_pred_f = Eval(model, lossfunc, tmptestdataloader)
+        ap, acc, AUC, TPR_2, TPR_3, TPR_4 = calRes(
+            torch.cat((y_true_r, y_true_f)), 
+            torch.cat((y_pred_r, y_pred_f))
+        )
+        print(f"\nResults for {TestsetName[i]}:")
+        print(f"AUC: {AUC:.6f}")
+        print(f"TPR_2: {TPR_2:.6f}")
+        print(f"TPR_3: {TPR_3:.6f}")
+        print(f"TPR_4: {TPR_4:.6f}")
+        
+        sumAUC += AUC
+        sumTPR_2 += TPR_2
+        sumTPR_3 += TPR_3
+        sumTPR_4 += TPR_4
+    
+    if len(testdataloaderList) > 1:
+        print("\nAverage Results:")
+        print(f"AUC: {sumAUC/len(testdataloaderList):.6f}")
+        print(f"TPR_2: {sumTPR_2/len(testdataloaderList):.6f}")
+        print(f"TPR_3: {sumTPR_3/len(testdataloaderList):.6f}")
+        print(f"TPR_4: {sumTPR_4/len(testdataloaderList):.6f}")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='Test the trained model')
+    parser.add_argument('--model_path', type=str, required=True,
+                        help='Path to the trained model')
+    parser.add_argument('--dataset_path', type=str, default=r"D:\.THESIS\datasets\sample_data",
+                        help='Path to the dataset')
+    parser.add_argument('--batch_size', type=int, default=32,
+                        help='Batch size for testing')
+    parser.add_argument('--device', type=str, default="cuda:0",
+                        help='Device to use (cuda:0 or cpu)')
+    
+    args = parser.parse_args()
+    
+    test_model(args.model_path, args.dataset_path, args.batch_size, args.device) 
