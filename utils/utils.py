@@ -2,7 +2,7 @@ from __future__ import print_function, division, absolute_import
 import torch
 import numpy as np
 import random
-from sklearn.metrics import average_precision_score, accuracy_score, roc_curve, auc
+from sklearn.metrics import average_precision_score, accuracy_score, roc_curve, auc, roc_auc_score
 
 __all__ = ["data_prefetcher", "data_prefetcher_two", "cal_fam", "cal_normfam", "setup_seed", "l2_norm", "calRes"]
 
@@ -99,35 +99,75 @@ def cal_normfam(model, inputs):
     return fam
 
 
-def calRes(y_true_all, y_pred_all):
-    y_true_all, y_pred_all = np.array(
-        y_true_all.cpu()), np.array(y_pred_all.cpu())
+def Eval(model, lossfunc, dataloader):
+    model.eval()
+    loss = 0
+    y_true = []
+    y_pred = []
+    
+    with torch.no_grad():
+        for data in dataloader:
+            imgs, labels = data
+            imgs = imgs.cuda()
+            labels = labels.cuda()
+            outputs = model(imgs)
+            loss += lossfunc(outputs, labels).item()
+            y_true.append(labels)
+            y_pred.append(outputs)
+    
+    loss = loss / len(dataloader)
+    y_true = torch.cat(y_true)
+    y_pred = torch.cat(y_pred)
+    
+    return loss, y_true, y_pred
 
-    fprs, tprs, ths = roc_curve(
-        y_true_all, y_pred_all, pos_label=1, drop_intermediate=False)
 
-    acc = accuracy_score(y_true_all, np.where(y_pred_all >= 0.5, 1, 0))*100.
+def calRes(y_true, y_pred):
+    y_true = y_true.cpu().numpy()
+    y_pred = y_pred.cpu().numpy()
+    
+    # Calculate AP (Average Precision)
+    ap = average_precision_score(y_true, y_pred[:, 1])
+    
+    # Calculate accuracy
+    y_pred_class = np.argmax(y_pred, axis=1)
+    acc = np.mean(y_true == y_pred_class)
+    
+    # Calculate AUC
+    auc = roc_auc_score(y_true, y_pred[:, 1])
+    
+    # Calculate TPR at different FPR thresholds
+    fpr, tpr, thresholds = roc_curve(y_true, y_pred[:, 1])
+    
+    # Find TPR at FPR = 0.02, 0.03, 0.04
+    tpr_2 = tpr[np.argmin(np.abs(fpr - 0.02))]
+    tpr_3 = tpr[np.argmin(np.abs(fpr - 0.03))]
+    tpr_4 = tpr[np.argmin(np.abs(fpr - 0.04))]
+    
+    return ap, acc, auc, tpr_2, tpr_3, tpr_4
 
-    ind = 0
-    for fpr in fprs:
-        if fpr > 1e-2:
-            break
-        ind += 1
-    TPR_2 = tprs[ind-1]
 
-    ind = 0
-    for fpr in fprs:
-        if fpr > 1e-3:
-            break
-        ind += 1
-    TPR_3 = tprs[ind-1]
-
-    ind = 0
-    for fpr in fprs:
-        if fpr > 1e-4:
-            break
-        ind += 1
-    TPR_4 = tprs[ind-1]
-
-    ap = average_precision_score(y_true_all, y_pred_all)
-    return ap, acc, auc(fprs, tprs), TPR_2, TPR_3, TPR_4
+def roc_curve(y_true, y_score):
+    """Calculate ROC curve points"""
+    # Sort scores and corresponding true values
+    desc_score_indices = np.argsort(y_score)[::-1]
+    y_score = y_score[desc_score_indices]
+    y_true = y_true[desc_score_indices]
+    
+    # Calculate TPR and FPR
+    tpr = []
+    fpr = []
+    thresholds = []
+    
+    for threshold in np.unique(y_score):
+        y_pred = (y_score >= threshold).astype(int)
+        tp = np.sum((y_true == 1) & (y_pred == 1))
+        fp = np.sum((y_true == 0) & (y_pred == 1))
+        tn = np.sum((y_true == 0) & (y_pred == 0))
+        fn = np.sum((y_true == 1) & (y_pred == 0))
+        
+        tpr.append(tp / (tp + fn) if (tp + fn) > 0 else 0)
+        fpr.append(fp / (fp + tn) if (fp + tn) > 0 else 0)
+        thresholds.append(threshold)
+    
+    return np.array(fpr), np.array(tpr), np.array(thresholds)
