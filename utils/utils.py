@@ -126,18 +126,27 @@ def calRes(y_true, y_pred):
     y_true = y_true.cpu().numpy()
     y_pred = y_pred.cpu().numpy()
     
+    # Handle both 1D and 2D prediction arrays
+    if len(y_pred.shape) == 1:
+        y_pred_2d = y_pred
+    else:
+        y_pred_2d = y_pred[:, 1]
+    
     # Calculate AP (Average Precision)
-    ap = average_precision_score(y_true, y_pred[:, 1])
+    ap = average_precision_score(y_true, y_pred_2d)
     
     # Calculate accuracy
-    y_pred_class = np.argmax(y_pred, axis=1)
+    if len(y_pred.shape) == 1:
+        y_pred_class = (y_pred_2d > 0.5).astype(int)
+    else:
+        y_pred_class = np.argmax(y_pred, axis=1)
     acc = np.mean(y_true == y_pred_class)
     
     # Calculate AUC
-    auc = roc_auc_score(y_true, y_pred[:, 1])
+    auc = roc_auc_score(y_true, y_pred_2d)
     
     # Calculate TPR at different FPR thresholds
-    fpr, tpr, thresholds = roc_curve(y_true, y_pred[:, 1])
+    fpr, tpr, thresholds = roc_curve(y_true, y_pred_2d)
     
     # Find TPR at FPR = 0.02, 0.03, 0.04
     tpr_2 = tpr[np.argmin(np.abs(fpr - 0.02))]
