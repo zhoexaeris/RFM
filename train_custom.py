@@ -27,21 +27,21 @@ parser.add_argument('--distributed', default=False, action='store_true',
                     help='Use distributed training')
 
 # Training arguments
-parser.add_argument('--batch_size', default=16, type=int,
+parser.add_argument('--batch_size', default=8, type=int,
                     help='Batch size for training')
-parser.add_argument('--max_batch', default=500000, type=int,
+parser.add_argument('--max_batch', default=100, type=int,
                     help='Maximum number of batches to train')
-parser.add_argument('--num_workers', default=4, type=int,
+parser.add_argument('--num_workers', default=8, type=int,
                     help='Number of workers for data loading')
-parser.add_argument('--logbatch', default=3000, type=int,
+parser.add_argument('--logbatch', default=5, type=int,
                     help='Log every N batches')
-parser.add_argument('--savebatch', default=30000, type=int,
+parser.add_argument('--savebatch', default=5, type=int,
                     help='Save model every N batches')
 parser.add_argument('--seed', default=5, type=int,
                     help='Random seed')
 
 # Learning rate
-parser.add_argument('--lr', default=0.0002, type=float,
+parser.add_argument('--lr', default=0.0005, type=float,
                     help='Learning rate')
 
 # RFM parameters
