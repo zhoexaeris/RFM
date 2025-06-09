@@ -1,53 +1,120 @@
 # Representative Forgery Mining for Fake Face Detection
 
-This repository contains the Pytorch implementation of Representative Forgery Mining for Fake Face Detection. If you find our code useful in your research, please cite:
+This repository is a modified version of the [Representative Forgery Mining](https://github.com/chengruiwang/RFM) implementation, adapted for thesis requirements. The original implementation was created by [Chengrui Wang](https://github.com/chengruiwang).
 
+## About
+
+This project implements a Representative Forgery Mining (RFM) approach for fake face detection, featuring advanced feature masking techniques and improved generalization capabilities. The implementation is based on the original work by Wang and Deng (CVPR 2021), with modifications and enhancements for thesis research.
+
+## Features
+
+- Representative Forgery Mining (RFM) for improved model generalization
+- Feature Activation Map (FAM) visualization
+- Support for multiple datasets (FaceForensics++, Celeb-DF, DFFD)
+- Custom dataset training capabilities
+- Distributed training support
+- Comprehensive evaluation metrics
+- Flexible configuration system
+
+## Requirements
+
+- Python 3.8+
+- PyTorch 1.7.0+
+- CUDA-compatible GPU
+- OpenCV
+- NumPy
+- Other dependencies listed in requirements.txt
+
+## Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/RFM.git
+cd RFM
 ```
-@inproceedings{wangCVPR21rfm,
-  author    = {Wang, Chengrui and Deng, Weihong},
-  title     = {Representative Forgery Mining for Fake Face Detection},
-  booktitle = {IEEE Conference on Computer Vision and Pattern Recognition (CVPR)},
-  year      = {2021}
-}
+
+2. Install the required dependencies:
+
+```bash
+pip install -r requirements.txt
 ```
 
-## Overview
+## Project Structure
 
-![headimg](./src/headimg.jpg)
+- `train.py`: Main training script
+- `train_custom.py`: Custom dataset training script
+- `test_model.py`: Model evaluation script
+- `AvgFAM.py`: Feature activation map visualization
+- `utils/`: Utility functions and dataset classes
+  - `utils.py`: Common utilities
+  - `custom_dataset.py`: Custom dataset implementation
+  - `datasets_profiles.py`: Dataset configurations
+  - `DataTools.py`: Data loading utilities
+- `models/`: Saved model checkpoints
+- `logs/`: Training logs
 
-## Setup
+## Usage
 
-This repository is build upon Python v3.8 and Pytorch v1.7.0 on Ubuntu 18.04. 
+### Training
 
-You have to request datasets from:
+1. Standard Training:
 
-1. [FaceForensics ++ : Learning to Detect Manipulated Facial Images](https://github.com/ondyari/FaceForensics)
-
-2. [On the Detection of Digital Face Manipulation](http://cvlab.cse.msu.edu/project-ffd.html)
-3. [Celeb-DF: A Large-scale Challenging Dataset for DeepFake Forensics](https://github.com/yuezunli/celeb-deepfakeforensics)
-
-and extra model from:
-
-1. [What makes fake images detectable? Understanding properties that generalize](https://chail.github.io/patch-forensics/)
-
-### For training:
-
-The default baseline model is xception. If the datasets mentioned above are ready to use, run:
-
-```
+```bash
 python train.py
 ```
 
-### For visualization:
+2. Custom Dataset Training:
 
-Average FAM can be generated for representative forgery visualization, run:
-
+```bash
+python train_custom.py --dataset_path /path/to/your/dataset
 ```
+
+### Testing
+
+To evaluate a trained model:
+
+```bash
+python test_model.py --model_path /path/to/model --dataset_path /path/to/dataset
+```
+
+### Visualization
+
+Generate average Feature Activation Maps (FAM):
+
+```bash
 python AvgFAM.py
 ```
 
-Models pretrained on [celebdf](https://drive.google.com/file/d/1-QqinypEk0JqFnSTI_qDAfY2kNlegy7W/view?usp=sharing) and [dffd](https://drive.google.com/file/d/1wj87F2XSpZhGlZ_HNDRV4SAO5D6n40BN/view?usp=sharing). 
+## Model Architecture
 
-### Contact:
+The RFM model consists of:
 
-If you have any questions about our work, feel free to contact us through email (Chengrui Wang: crwang@bupt.edu.cn).
+- Xception backbone network
+- Feature masking mechanism
+- Classification head
+- FAM generation for visualization
+
+## Original Repository
+
+This project is based on the original implementation by Wang and Deng:
+
+- Original Paper: [Representative Forgery Mining for Fake Face Detection](https://openaccess.thecvf.com/content/CVPR2021/html/Wang_Representative_Forgery_Mining_for_Fake_Face_Detection_CVPR_2021_paper.html)
+- Original Authors: Chengrui Wang and Weihong Deng
+
+## Thesis Modifications
+
+This version includes modifications and enhancements made for thesis research purposes, including:
+
+- Custom dataset handling
+- Modified training pipeline
+- Enhanced evaluation metrics
+- Additional configuration options
+- Improved error handling
+- Extended logging capabilities
+
+## Acknowledgments
+
+- Original implementation by Wang and Deng (CVPR 2021)
+- All contributors to the original repository
+- Thesis advisors and research team
