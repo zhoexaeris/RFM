@@ -1,3 +1,13 @@
+"""Training script for the RFM (Random Feature Masking) model.
+
+This module implements the training pipeline for a deep learning model that uses
+Random Feature Masking (RFM) technique for improved generalization. It includes
+functions for model evaluation, logging, and the main training loop.
+
+The script supports distributed training, model checkpointing, and various
+hyperparameter configurations through command-line arguments.
+"""
+
 import torch
 from utils.utils import data_prefetcher_two, cal_fam, setup_seed, calRes
 from pretrainedmodels import xception
@@ -43,6 +53,19 @@ upper = args.upper
 
 
 def Eval(model, lossfunc, dtloader):
+    """Evaluate the model on a given dataset.
+
+    Args:
+        model (torch.nn.Module): The neural network model to evaluate.
+        lossfunc (torch.nn.Module): The loss function to use for evaluation.
+        dtloader (torch.utils.data.DataLoader): DataLoader containing the evaluation dataset.
+
+    Returns:
+        tuple: A tuple containing:
+            - float: Average loss over the dataset
+            - torch.Tensor: Ground truth labels
+            - torch.Tensor: Model predictions
+    """
     model.eval()
     sumloss = 0.
     y_true_all = None
@@ -70,6 +93,11 @@ def Eval(model, lossfunc, dtloader):
 
 
 def Log(log):
+    """Write log message to both console and log file.
+
+    Args:
+        log (str): The log message to write.
+    """
     print(log)
     f = open("./logs/"+upper+"_"+modelname+".log", "a")
     f.write(log+"\n")

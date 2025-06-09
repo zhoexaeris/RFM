@@ -1,3 +1,11 @@
+"""Utility functions for deep learning model training and evaluation.
+
+This module provides various utility functions for data loading, model evaluation,
+feature activation map calculation, and performance metrics computation. It includes
+classes for efficient data prefetching and functions for calculating various model
+performance metrics.
+"""
+
 from __future__ import print_function, division, absolute_import
 import torch
 import numpy as np
@@ -8,6 +16,11 @@ __all__ = ["data_prefetcher", "data_prefetcher_two", "cal_fam", "cal_normfam", "
 
 
 def setup_seed(seed):
+    """Set random seeds for reproducibility.
+
+    Args:
+        seed (int): Random seed value to use for all random number generators.
+    """
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
     np.random.seed(seed)
@@ -16,6 +29,14 @@ def setup_seed(seed):
 
 
 class data_prefetcher():
+    """Data prefetcher for efficient GPU data loading.
+
+    This class implements a data prefetcher that loads the next batch of data
+    while the current batch is being processed, improving GPU utilization.
+
+    Args:
+        loader (torch.utils.data.DataLoader): DataLoader to prefetch from.
+    """
     def __init__(self, loader):
         self.stream = torch.cuda.Stream()
         self.loader = iter(loader)
@@ -41,6 +62,15 @@ class data_prefetcher():
 
 
 class data_prefetcher_two():
+    """Data prefetcher for two data loaders with concatenation.
+
+    This class implements a data prefetcher that loads and concatenates data from
+    two different data loaders while the current batch is being processed.
+
+    Args:
+        loader1 (torch.utils.data.DataLoader): First DataLoader to prefetch from.
+        loader2 (torch.utils.data.DataLoader): Second DataLoader to prefetch from.
+    """
     def __init__(self, loader1, loader2):
         self.stream = torch.cuda.Stream()
         self.loader1 = iter(loader1)
@@ -70,12 +100,30 @@ class data_prefetcher_two():
 
 
 def l2_norm(input, axis=1):
+    """Calculate L2 normalization along specified axis.
+
+    Args:
+        input (torch.Tensor): Input tensor to normalize.
+        axis (int, optional): Axis along which to normalize. Defaults to 1.
+
+    Returns:
+        torch.Tensor: L2 normalized tensor.
+    """
     norm = torch.norm(input, 2, axis, True)
     output = torch.div(input, norm+1e-8)
     return output
 
 
 def cal_fam(model, inputs):
+    """Calculate Feature Activation Map (FAM) for given inputs.
+
+    Args:
+        model (torch.nn.Module): Neural network model.
+        inputs (torch.Tensor): Input tensor to calculate FAM for.
+
+    Returns:
+        torch.Tensor: Feature activation map.
+    """
     model.zero_grad()
     inputs = inputs.detach().clone()
     inputs.requires_grad_()
@@ -89,6 +137,15 @@ def cal_fam(model, inputs):
 
 
 def cal_normfam(model, inputs):
+    """Calculate normalized Feature Activation Map (FAM).
+
+    Args:
+        model (torch.nn.Module): Neural network model.
+        inputs (torch.Tensor): Input tensor to calculate normalized FAM for.
+
+    Returns:
+        torch.Tensor: Normalized feature activation map.
+    """
     fam = cal_fam(model, inputs)
     _, x, y = fam[0].shape
     fam = torch.nn.functional.interpolate(fam, (int(y/2), int(x/2)), mode='bilinear', align_corners=False)
@@ -100,6 +157,19 @@ def cal_normfam(model, inputs):
 
 
 def Eval(model, lossfunc, dataloader):
+    """Evaluate model performance on a dataset.
+
+    Args:
+        model (torch.nn.Module): Neural network model to evaluate.
+        lossfunc (torch.nn.Module): Loss function to use.
+        dataloader (torch.utils.data.DataLoader): DataLoader containing evaluation data.
+
+    Returns:
+        tuple: A tuple containing:
+            - float: Average loss
+            - torch.Tensor: Ground truth labels
+            - torch.Tensor: Model predictions
+    """
     model.eval()
     loss = 0
     y_true = []
@@ -123,6 +193,21 @@ def Eval(model, lossfunc, dataloader):
 
 
 def calRes(y_true, y_pred):
+    """Calculate various performance metrics for model predictions.
+
+    Args:
+        y_true (torch.Tensor): Ground truth labels.
+        y_pred (torch.Tensor): Model predictions.
+
+    Returns:
+        tuple: A tuple containing:
+            - float: Average Precision (AP)
+            - float: Accuracy
+            - float: Area Under ROC Curve (AUC)
+            - float: True Positive Rate at FPR=0.02
+            - float: True Positive Rate at FPR=0.03
+            - float: True Positive Rate at FPR=0.04
+    """
     y_true = y_true.cpu().numpy()
     y_pred = y_pred.cpu().numpy()
     
@@ -157,7 +242,18 @@ def calRes(y_true, y_pred):
 
 
 def roc_curve(y_true, y_score):
-    """Calculate ROC curve points"""
+    """Calculate ROC curve points.
+
+    Args:
+        y_true (numpy.ndarray): Ground truth labels.
+        y_score (numpy.ndarray): Model prediction scores.
+
+    Returns:
+        tuple: A tuple containing:
+            - numpy.ndarray: False Positive Rates
+            - numpy.ndarray: True Positive Rates
+            - numpy.ndarray: Thresholds
+    """
     # Sort scores and corresponding true values
     desc_score_indices = np.argsort(y_score)[::-1]
     y_score = y_score[desc_score_indices]

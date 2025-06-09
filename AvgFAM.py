@@ -1,3 +1,11 @@
+"""Feature Activation Map (FAM) visualization and averaging module.
+
+This module provides functionality to generate and visualize Feature Activation Maps
+(FAM) for deep learning models, particularly for analyzing model attention patterns
+on real and fake images. It includes functions for heatmap generation and image
+normalization.
+"""
+
 import torch
 import torchvision
 from utils.utils import data_prefetcher, cal_normfam, setup_seed
@@ -18,6 +26,17 @@ aug = torchvision.transforms.Compose([
 
 
 def gen_heatmap(image, mask):
+    """Generate a heatmap visualization from an image and its activation mask.
+
+    Args:
+        image (numpy.ndarray): Input image array.
+        mask (numpy.ndarray): Activation mask array.
+
+    Returns:
+        tuple: A tuple containing:
+            - numpy.ndarray: Normalized image with heatmap overlay
+            - numpy.ndarray: Heatmap visualization
+    """
     heatmap = cv2.applyColorMap(np.uint8(255 * mask), cv2.COLORMAP_JET)
     heatmap = np.float32(heatmap) / 255
     heatmap = heatmap[..., ::-1]
@@ -27,6 +46,14 @@ def gen_heatmap(image, mask):
 
 
 def norm_image(image):
+    """Normalize an image array to the range [0, 255].
+
+    Args:
+        image (numpy.ndarray): Input image array.
+
+    Returns:
+        numpy.ndarray: Normalized image array with values in range [0, 255].
+    """
     image = image.copy()
     image -= np.min(image)
     image /= np.max(image)

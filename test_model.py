@@ -1,3 +1,10 @@
+"""Model testing script for evaluating trained models on test datasets.
+
+This module provides functionality to test trained models on both real and fake image
+datasets, calculating various performance metrics including AUC, accuracy, precision,
+recall, F1-score, and TPR (True Positive Rate) at different thresholds.
+"""
+
 import torch
 from utils.utils import Eval, calRes
 from pretrainedmodels import xception
@@ -8,6 +15,21 @@ import os
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
 def test_model(model_path, dataset_path, batch_size=32, device="cuda:0"):
+    """Test a trained model on real and fake image datasets.
+
+    This function loads a trained model and evaluates its performance on both real
+    and fake image datasets. It calculates various metrics including AUC, accuracy,
+    precision, recall, F1-score, and TPR at different thresholds.
+
+    Args:
+        model_path (str): Path to the trained model file.
+        dataset_path (str): Path to the dataset directory.
+        batch_size (int, optional): Batch size for testing. Defaults to 32.
+        device (str, optional): Device to run the model on. Defaults to "cuda:0".
+
+    Returns:
+        None: Results are printed to console.
+    """
     # Initialize model
     model = xception(num_classes=2, pretrained=False).to(device)
     model.load_state_dict(torch.load(model_path))

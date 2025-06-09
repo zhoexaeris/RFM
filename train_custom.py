@@ -1,3 +1,14 @@
+"""Custom training script for the RFM (Random Feature Masking) model.
+
+This module implements a customizable training pipeline for deep learning models
+using Random Feature Masking (RFM) technique. It provides enhanced functionality
+for training on custom datasets with improved error handling, logging, and
+configuration options.
+
+The script supports distributed training, model checkpointing, and extensive
+hyperparameter configurations through command-line arguments.
+"""
+
 import torch
 from utils.utils import data_prefetcher_two, cal_fam, setup_seed, calRes
 from pretrainedmodels import xception
@@ -71,6 +82,22 @@ upper = args.upper
 modelname = args.modelname
 
 def Eval(model, lossfunc, dtloader):
+    """Evaluate the model on a given dataset.
+
+    This function evaluates the model's performance on a dataset, calculating
+    loss and predictions for all samples.
+
+    Args:
+        model (torch.nn.Module): The neural network model to evaluate.
+        lossfunc (torch.nn.Module): The loss function to use for evaluation.
+        dtloader (torch.utils.data.DataLoader): DataLoader containing the evaluation dataset.
+
+    Returns:
+        tuple: A tuple containing:
+            - float: Average loss over the dataset
+            - torch.Tensor: Ground truth labels
+            - torch.Tensor: Model predictions
+    """
     model.eval()
     sumloss = 0.
     y_true_all = None
@@ -97,6 +124,14 @@ def Eval(model, lossfunc, dtloader):
     return sumloss/len(y_true_all), y_true_all.detach(), y_pred_all.detach()
 
 def Log(log):
+    """Write log message to both console and log file.
+
+    This function writes a log message to both the console and a log file,
+    creating the log directory if it doesn't exist.
+
+    Args:
+        log (str): The log message to write.
+    """
     print(log)
     os.makedirs("./logs", exist_ok=True)
     f = open("./logs/"+upper+"_"+modelname+".log", "a")
