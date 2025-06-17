@@ -1,0 +1,167 @@
+Submitted on Sun Jun  8 13:31:58 PST 2025
+JOB PARAMETERS
+SLURM_JOB_ID          : 227586
+SLURM_JOB_NAME        : RFM-unalt_train-cdf-p40
+SLURM_JOB_NUM_NODES   : 1
+SLURM_JOB_NODELIST    : saliksik-gpu-01
+SLURM_NTASKS          : 1
+SLURM_NTASKS_PER_NODE : 
+SLURM_MEM_PER_NODE    : 
+CUDA_DEVICE=/dev/nvidia/0
+Sun Jun  8 13:31:59 2025       
++-----------------------------------------------------------------------------+
+| NVIDIA-SMI 470.239.06   Driver Version: 470.239.06   CUDA Version: 11.4     |
+|-------------------------------+----------------------+----------------------+
+| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |
+|                               |                      |               MIG M. |
+|===============================+======================+======================|
+|   0  Tesla P40           Off  | 00000000:82:00.0 Off |                    0 |
+| N/A   30C    P0    47W / 250W |      0MiB / 22919MiB |      1%      Default |
+|                               |                      |                  N/A |
++-------------------------------+----------------------+----------------------+
+                                                                               
++-----------------------------------------------------------------------------+
+| Processes:                                                                  |
+|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |
+|        ID   ID                                                   Usage      |
+|=============================================================================|
+|  No running processes found                                                 |
++-----------------------------------------------------------------------------+
+TMPDIR                : /tmp/ice.exconde/SLURM_JOB_ID/227586
+Module load: anaconda/3-2023.07-2
+CUDA Available: True
+Device Count: 1
+
+Training Configuration:
+Dataset path: /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered
+Batch size: 8
+Learning rate: 0.0005
+Device: cuda:0
+Model: xception
+----------------------------------------
+
+Model:xception BatchSize:8 lr:0.000500
+cudnn.version:8200 enabled:True benchmark:False deterministic:True
+
+Loading dataset from /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered
+CustomDataset TrainsetR 5600
+Loading /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/train/realLoaded /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/train/real=>5600
+CustomDataset TrainsetF 5600
+Loading /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/train/fakeLoaded /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/train/fake=>5600
+CustomDataset ValidsetR 1200
+CustomDataset ValidsetF 1200
+Loading /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/val/realLoaded /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/val/real=>1200
+Loading /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/val/fakeLoaded /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/val/fake=>1200
+CustomDataset TestsetR 1200
+Loading /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/test/realLoaded /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/test/real=>1200
+Loading /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/test/fakeLoaded /scratch1/ice.exconde/final_dataset/01_celebdf_unaltered/test/fake=>1200
+Training set - Real: 5600 images, Fake: 5600 images
+Validation set: 2400 images
+Test set - Real: 1200 images, Fake sets: 1
+
+Starting training...
+----------------------------------------
+Train 000001 loss:0.69726 avgloss:0.69726 lr:0.000500 time:2.4025Train 000002 loss:1.11070 avgloss:0.90398 lr:0.000500 time:0.2843Train 000003 loss:0.63569 avgloss:0.81455 lr:0.000500 time:0.2804Train 000004 loss:0.93616 avgloss:0.84495 lr:0.000500 time:0.2800Train 000005 loss:0.56718 avgloss:0.78940 lr:0.000500 time:0.2800
+epoch:000 batch:000005 loss:0.56718 avgloss:0.78940
+AUC:0.656469 TPR_2:0.029167 TPR_3:0.031667 TPR_4:0.042500 validset
+AUC:0.656469 TPR_2:0.029167 TPR_3:0.031667 TPR_4:0.042500 fake
+-------------------------------------------
+Train 000006 loss:1.12368 avgloss:0.84511 lr:0.000500 time:0.2807Train 000007 loss:0.76422 avgloss:0.83356 lr:0.000500 time:0.2797Train 000008 loss:0.54454 avgloss:0.79743 lr:0.000500 time:0.2800Train 000009 loss:1.36743 avgloss:0.86076 lr:0.000500 time:0.2800Train 000010 loss:1.06870 avgloss:0.88156 lr:0.000500 time:0.2793
+epoch:000 batch:000010 loss:1.06870 avgloss:0.88156
+AUC:0.608146 TPR_2:0.008333 TPR_3:0.020833 TPR_4:0.028333 validset
+AUC:0.608146 TPR_2:0.008333 TPR_3:0.020833 TPR_4:0.028333 fake
+-------------------------------------------
+Train 000011 loss:0.58980 avgloss:0.85503 lr:0.000500 time:0.2808Train 000012 loss:0.51249 avgloss:0.82649 lr:0.000500 time:0.2794Train 000013 loss:0.68301 avgloss:0.81545 lr:0.000500 time:0.2801Train 000014 loss:1.00598 avgloss:0.82906 lr:0.000500 time:0.2798Train 000015 loss:0.39201 avgloss:0.79992 lr:0.000500 time:0.2793
+epoch:000 batch:000015 loss:0.39201 avgloss:0.79992
+AUC:0.602501 TPR_2:0.027500 TPR_3:0.054167 TPR_4:0.076667 validset
+AUC:0.602501 TPR_2:0.027500 TPR_3:0.054167 TPR_4:0.076667 fake
+-------------------------------------------
+Train 000016 loss:0.86579 avgloss:0.80404 lr:0.000500 time:0.2810Train 000017 loss:1.00928 avgloss:0.81611 lr:0.000500 time:0.2795Train 000018 loss:0.75691 avgloss:0.81282 lr:0.000500 time:0.2797Train 000019 loss:1.00297 avgloss:0.82283 lr:0.000500 time:0.2797Train 000020 loss:0.77330 avgloss:0.82035 lr:0.000500 time:0.2802
+epoch:000 batch:000020 loss:0.77330 avgloss:0.82035
+AUC:0.567016 TPR_2:0.013333 TPR_3:0.016667 TPR_4:0.017500 validset
+AUC:0.567016 TPR_2:0.013333 TPR_3:0.016667 TPR_4:0.017500 fake
+-------------------------------------------
+Train 000021 loss:0.52733 avgloss:0.80640 lr:0.000500 time:0.2812Train 000022 loss:0.56776 avgloss:0.79555 lr:0.000500 time:0.2803Train 000023 loss:0.75300 avgloss:0.79370 lr:0.000500 time:0.2797Train 000024 loss:0.75386 avgloss:0.79204 lr:0.000500 time:0.2801Train 000025 loss:0.66435 avgloss:0.78694 lr:0.000500 time:0.2802
+epoch:000 batch:000025 loss:0.66435 avgloss:0.78694
+AUC:0.566291 TPR_2:0.014167 TPR_3:0.020833 TPR_4:0.023333 validset
+AUC:0.566291 TPR_2:0.014167 TPR_3:0.020833 TPR_4:0.023333 fake
+-------------------------------------------
+Train 000026 loss:0.48538 avgloss:0.77534 lr:0.000500 time:0.2813Train 000027 loss:0.41620 avgloss:0.76204 lr:0.000500 time:0.2801Train 000028 loss:0.55783 avgloss:0.75474 lr:0.000500 time:0.2803Train 000029 loss:0.59879 avgloss:0.74937 lr:0.000500 time:0.2798Train 000030 loss:0.55464 avgloss:0.74288 lr:0.000500 time:0.2807
+epoch:000 batch:000030 loss:0.55464 avgloss:0.74288
+AUC:0.637002 TPR_2:0.037500 TPR_3:0.067500 TPR_4:0.091667 validset
+AUC:0.637002 TPR_2:0.037500 TPR_3:0.067500 TPR_4:0.091667 fake
+-------------------------------------------
+Train 000031 loss:0.66818 avgloss:0.74047 lr:0.000500 time:0.2818Train 000032 loss:0.34327 avgloss:0.72805 lr:0.000500 time:0.2805Train 000033 loss:0.89097 avgloss:0.73299 lr:0.000500 time:0.2800Train 000034 loss:0.48469 avgloss:0.72569 lr:0.000500 time:0.2794Train 000035 loss:0.91375 avgloss:0.73106 lr:0.000500 time:0.2799
+epoch:000 batch:000035 loss:0.91375 avgloss:0.73106
+AUC:0.666643 TPR_2:0.094167 TPR_3:0.116667 TPR_4:0.135000 validset
+AUC:0.666643 TPR_2:0.094167 TPR_3:0.116667 TPR_4:0.135000 fake
+-------------------------------------------
+Train 000036 loss:0.82754 avgloss:0.73374 lr:0.000500 time:0.2807Train 000037 loss:0.46121 avgloss:0.72637 lr:0.000500 time:0.2798Train 000038 loss:0.70057 avgloss:0.72570 lr:0.000500 time:0.2807Train 000039 loss:0.53037 avgloss:0.72069 lr:0.000500 time:0.2801Train 000040 loss:0.65335 avgloss:0.71900 lr:0.000500 time:0.2799
+epoch:000 batch:000040 loss:0.65335 avgloss:0.71900
+AUC:0.699172 TPR_2:0.070833 TPR_3:0.100833 TPR_4:0.142500 validset
+AUC:0.699172 TPR_2:0.070833 TPR_3:0.100833 TPR_4:0.142500 fake
+-------------------------------------------
+Train 000041 loss:0.35625 avgloss:0.71016 lr:0.000500 time:0.2815Train 000042 loss:0.68818 avgloss:0.70963 lr:0.000500 time:0.2805Train 000043 loss:0.60620 avgloss:0.70723 lr:0.000500 time:0.2805Train 000044 loss:0.53325 avgloss:0.70327 lr:0.000500 time:0.2801Train 000045 loss:0.62690 avgloss:0.70158 lr:0.000500 time:0.2805
+epoch:000 batch:000045 loss:0.62690 avgloss:0.70158
+AUC:0.654973 TPR_2:0.048333 TPR_3:0.061667 TPR_4:0.071667 validset
+AUC:0.654973 TPR_2:0.048333 TPR_3:0.061667 TPR_4:0.071667 fake
+-------------------------------------------
+Train 000046 loss:1.08809 avgloss:0.70998 lr:0.000500 time:0.2807Train 000047 loss:0.61066 avgloss:0.70787 lr:0.000500 time:0.2800Train 000048 loss:0.77470 avgloss:0.70926 lr:0.000500 time:0.2793Train 000049 loss:0.46445 avgloss:0.70426 lr:0.000500 time:0.2797Train 000050 loss:0.33765 avgloss:0.69693 lr:0.000500 time:0.2800
+epoch:000 batch:000050 loss:0.33765 avgloss:0.69693
+AUC:0.680151 TPR_2:0.068333 TPR_3:0.093333 TPR_4:0.100833 validset
+AUC:0.680151 TPR_2:0.068333 TPR_3:0.093333 TPR_4:0.100833 fake
+-------------------------------------------
+Train 000051 loss:0.48885 avgloss:0.69285 lr:0.000500 time:0.2811Train 000052 loss:0.60756 avgloss:0.69121 lr:0.000500 time:0.2802Train 000053 loss:0.82796 avgloss:0.69379 lr:0.000500 time:0.2798Train 000054 loss:1.19638 avgloss:0.70310 lr:0.000500 time:0.2793Train 000055 loss:0.61363 avgloss:0.70147 lr:0.000500 time:0.2797
+epoch:000 batch:000055 loss:0.61363 avgloss:0.70147
+AUC:0.701792 TPR_2:0.089167 TPR_3:0.116667 TPR_4:0.132500 validset
+AUC:0.701792 TPR_2:0.089167 TPR_3:0.116667 TPR_4:0.132500 fake
+-------------------------------------------
+Train 000056 loss:0.71201 avgloss:0.70166 lr:0.000500 time:0.2807Train 000057 loss:0.42565 avgloss:0.69682 lr:0.000500 time:0.2797Train 000058 loss:0.63113 avgloss:0.69568 lr:0.000500 time:0.2797Train 000059 loss:0.64575 avgloss:0.69484 lr:0.000500 time:0.2797Train 000060 loss:0.46378 avgloss:0.69099 lr:0.000500 time:0.2796
+epoch:000 batch:000060 loss:0.46378 avgloss:0.69099
+AUC:0.687433 TPR_2:0.091667 TPR_3:0.100000 TPR_4:0.137500 validset
+AUC:0.687433 TPR_2:0.091667 TPR_3:0.100000 TPR_4:0.137500 fake
+-------------------------------------------
+Train 000061 loss:0.49854 avgloss:0.68783 lr:0.000500 time:0.2807Train 000062 loss:0.89686 avgloss:0.69120 lr:0.000500 time:0.2801Train 000063 loss:0.41920 avgloss:0.68689 lr:0.000500 time:0.2798Train 000064 loss:0.88066 avgloss:0.68991 lr:0.000500 time:0.2799Train 000065 loss:0.48457 avgloss:0.68675 lr:0.000500 time:0.2800
+epoch:000 batch:000065 loss:0.48457 avgloss:0.68675
+AUC:0.680619 TPR_2:0.075833 TPR_3:0.108333 TPR_4:0.120833 validset
+AUC:0.680619 TPR_2:0.075833 TPR_3:0.108333 TPR_4:0.120833 fake
+-------------------------------------------
+Train 000066 loss:0.47579 avgloss:0.68356 lr:0.000500 time:0.2808Train 000067 loss:0.80898 avgloss:0.68543 lr:0.000500 time:0.2792Train 000068 loss:0.83672 avgloss:0.68765 lr:0.000500 time:0.2801Train 000069 loss:0.59955 avgloss:0.68638 lr:0.000500 time:0.2801Train 000070 loss:0.49544 avgloss:0.68365 lr:0.000500 time:0.2800
+epoch:000 batch:000070 loss:0.49544 avgloss:0.68365
+AUC:0.678972 TPR_2:0.056667 TPR_3:0.097500 TPR_4:0.115833 validset
+AUC:0.678972 TPR_2:0.056667 TPR_3:0.097500 TPR_4:0.115833 fake
+-------------------------------------------
+Train 000071 loss:0.61851 avgloss:0.68273 lr:0.000500 time:0.2804Train 000072 loss:0.60441 avgloss:0.68164 lr:0.000500 time:0.2801Train 000073 loss:0.63080 avgloss:0.68095 lr:0.000500 time:0.2797Train 000074 loss:0.53537 avgloss:0.67898 lr:0.000500 time:0.2796Train 000075 loss:0.64471 avgloss:0.67852 lr:0.000500 time:0.2794
+epoch:000 batch:000075 loss:0.64471 avgloss:0.67852
+AUC:0.614442 TPR_2:0.050000 TPR_3:0.075000 TPR_4:0.102500 validset
+AUC:0.614442 TPR_2:0.050000 TPR_3:0.075000 TPR_4:0.102500 fake
+-------------------------------------------
+Train 000076 loss:0.61386 avgloss:0.67767 lr:0.000500 time:0.2817Train 000077 loss:0.64198 avgloss:0.67721 lr:0.000500 time:0.2798Train 000078 loss:0.80318 avgloss:0.67882 lr:0.000500 time:0.2800Train 000079 loss:0.43927 avgloss:0.67579 lr:0.000500 time:0.2801Train 000080 loss:0.88350 avgloss:0.67839 lr:0.000500 time:0.2801
+epoch:000 batch:000080 loss:0.88350 avgloss:0.67839
+AUC:0.644231 TPR_2:0.031667 TPR_3:0.061667 TPR_4:0.077500 validset
+AUC:0.644231 TPR_2:0.031667 TPR_3:0.061667 TPR_4:0.077500 fake
+-------------------------------------------
+Train 000081 loss:0.31425 avgloss:0.67389 lr:0.000500 time:0.2804Train 000082 loss:0.47267 avgloss:0.67144 lr:0.000500 time:0.2794Train 000083 loss:0.58812 avgloss:0.67044 lr:0.000500 time:0.2795Train 000084 loss:0.65177 avgloss:0.67021 lr:0.000500 time:0.2799Train 000085 loss:0.32460 avgloss:0.66615 lr:0.000500 time:0.2799
+epoch:000 batch:000085 loss:0.32460 avgloss:0.66615
+AUC:0.642913 TPR_2:0.020833 TPR_3:0.045000 TPR_4:0.056667 validset
+AUC:0.642913 TPR_2:0.020833 TPR_3:0.045000 TPR_4:0.056667 fake
+-------------------------------------------
+Train 000086 loss:0.98195 avgloss:0.66982 lr:0.000500 time:0.2815Train 000087 loss:0.37644 avgloss:0.66645 lr:0.000500 time:0.2797Train 000088 loss:0.48295 avgloss:0.66436 lr:0.000500 time:0.2802Train 000089 loss:0.44599 avgloss:0.66191 lr:0.000500 time:0.2799Train 000090 loss:0.78574 avgloss:0.66328 lr:0.000500 time:0.2798
+epoch:000 batch:000090 loss:0.78574 avgloss:0.66328
+AUC:0.643052 TPR_2:0.017500 TPR_3:0.030000 TPR_4:0.068333 validset
+AUC:0.643052 TPR_2:0.017500 TPR_3:0.030000 TPR_4:0.068333 fake
+-------------------------------------------
+Train 000091 loss:0.65154 avgloss:0.66315 lr:0.000500 time:0.2806Train 000092 loss:0.97720 avgloss:0.66657 lr:0.000500 time:0.2793Train 000093 loss:0.77851 avgloss:0.66777 lr:0.000500 time:0.2795Train 000094 loss:0.74371 avgloss:0.66858 lr:0.000500 time:0.2799Train 000095 loss:0.84025 avgloss:0.67039 lr:0.000500 time:0.2801
+epoch:000 batch:000095 loss:0.84025 avgloss:0.67039
+AUC:0.638846 TPR_2:0.032500 TPR_3:0.048333 TPR_4:0.071667 validset
+AUC:0.638846 TPR_2:0.032500 TPR_3:0.048333 TPR_4:0.071667 fake
+-------------------------------------------
+Train 000096 loss:0.54753 avgloss:0.66911 lr:0.000500 time:0.2811Train 000097 loss:0.73177 avgloss:0.66975 lr:0.000500 time:0.2799Train 000098 loss:0.61087 avgloss:0.66915 lr:0.000500 time:0.2797Train 000099 loss:0.44339 avgloss:0.66687 lr:0.000500 time:0.2812Train 000100 loss:0.68409 avgloss:0.66704 lr:0.000500 time:0.2801
+epoch:000 batch:000100 loss:0.68409 avgloss:0.66704
+AUC:0.664409 TPR_2:0.054167 TPR_3:0.068333 TPR_4:0.110000 validset
+AUC:0.664409 TPR_2:0.054167 TPR_3:0.068333 TPR_4:0.110000 fake
+-------------------------------------------
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** JOB 227586 ON saliksik-gpu-01 CANCELLED AT 2025-06-11T13:32:08 DUE TO TIME LIMIT ***
+slurmstepd: error: *** STEP 227586.0 ON saliksik-gpu-01 CANCELLED AT 2025-06-11T13:32:08 DUE TO TIME LIMIT ***

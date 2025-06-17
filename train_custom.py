@@ -15,6 +15,7 @@ from pretrainedmodels import xception
 from utils.custom_dataset import CustomDataset
 from torch.utils.data import DataLoader
 from torch.optim import Adam
+from torch.cuda.amp import autocast, GradScaler
 import numpy as np
 import argparse
 import random
@@ -153,6 +154,9 @@ if __name__ == "__main__":
     setup_seed(args.seed)
     print("cudnn.version:%s enabled:%s benchmark:%s deterministic:%s" % (torch.backends.cudnn.version(), torch.backends.cudnn.enabled, torch.backends.cudnn.benchmark, torch.backends.cudnn.deterministic))
 
+    # Enable cuDNN benchmarking for faster training
+    torch.backends.cudnn.benchmark = True
+
     MAX_TPR_4 = 0.
 
     # Initialize model
@@ -162,6 +166,9 @@ if __name__ == "__main__":
         model = torch.nn.DataParallel(model)
 
     optim = Adam(model.parameters(), lr=args.lr, weight_decay=0)
+    
+    # Initialize gradient scaler for mixed precision training
+    scaler = GradScaler()
 
     if args.resume_model is not None:
         print(f"Loading model from {args.resume_model}")
@@ -189,35 +196,43 @@ if __name__ == "__main__":
 
     setup_seed(args.seed)
 
-    # Create data loaders
+    # Create data loaders with optimized settings
     traindataloaderR = DataLoader(
         trainsetR,
         batch_size=int(args.batch_size/2),
         shuffle=True,
-        pin_memory=args.pin_memory,
-        num_workers=args.num_workers
+        pin_memory=True,  # Enable pin memory
+        num_workers=args.num_workers,
+        persistent_workers=True,  # Keep workers alive between epochs
+        prefetch_factor=2  # Prefetch 2 batches per worker
     )
 
     traindataloaderF = DataLoader(
         trainsetF,
         batch_size=int(args.batch_size/2),
         shuffle=True,
-        pin_memory=args.pin_memory,
-        num_workers=args.num_workers
+        pin_memory=True,
+        num_workers=args.num_workers,
+        persistent_workers=True,
+        prefetch_factor=2
     )
 
     validdataloader = DataLoader(
         validset,
         batch_size=args.batch_size*2,
-        pin_memory=args.pin_memory,
-        num_workers=args.num_workers
+        pin_memory=True,
+        num_workers=args.num_workers,
+        persistent_workers=True,
+        prefetch_factor=2
     )
 
     testdataloaderR = DataLoader(
         testsetR,
         batch_size=args.batch_size*2,
-        pin_memory=args.pin_memory,
-        num_workers=args.num_workers
+        pin_memory=True,
+        num_workers=args.num_workers,
+        persistent_workers=True,
+        prefetch_factor=2
     )
 
     testdataloaderList = []
@@ -226,8 +241,10 @@ if __name__ == "__main__":
             DataLoader(
                 tmptestset,
                 batch_size=args.batch_size*2,
-                pin_memory=args.pin_memory,
-                num_workers=args.num_workers
+                pin_memory=True,
+                num_workers=args.num_workers,
+                persistent_workers=True,
+                prefetch_factor=2
             )
         )
 
@@ -249,7 +266,8 @@ if __name__ == "__main__":
 
             ''' ↓ the implementation of RFM ↓ '''
             model.eval()
-            mask = cal_fam(model, data)
+            with autocast():  # Use mixed precision for RFM
+                mask = cal_fam(model, data)
             imgmask = torch.ones_like(mask)
             imgh = imgw = 224
 
@@ -286,16 +304,21 @@ if __name__ == "__main__":
             ''' ↑ the implementation of RFM ↑ '''
 
             model.train()
-            y_pred = model.forward(data)
-            loss = lossfunc(y_pred, y_true)
-
-            flood = (loss-0.04).abs() + 0.04
+            optim.zero_grad()
+            
+            # Use mixed precision training
+            with autocast():
+                y_pred = model.forward(data)
+                loss = lossfunc(y_pred, y_true)
+                flood = (loss-0.04).abs() + 0.04
+            
+            # Scale loss and backpropagate
+            scaler.scale(flood).backward()
+            scaler.step(optim)
+            scaler.update()
+            
             sumloss += loss.detach()*len(data)
             data, y_true = prefetcher.next()
-
-            optim.zero_grad()
-            flood.backward()
-            optim.step()
 
             batchind += 1
             print("Train %06d loss:%.5f avgloss:%.5f lr:%.6f time:%.4f" % (batchind, loss, sumloss/sumcnt, optim.param_groups[0]["lr"], time.time()-stime), end="\r")

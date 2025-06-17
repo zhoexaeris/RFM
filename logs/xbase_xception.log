@@ -1,0 +1,12 @@
+
+Model:xception BatchSize:16 lr:0.000200
+
+Model:xception BatchSize:16 lr:0.000200
+
+Model:xception BatchSize:16 lr:0.000200
+
+Model:xception BatchSize:2 lr:0.000200
+epoch:000 batch:000002 loss:0.65674 avgloss:0.71081
+AUC:0.571569 TPR_2:0.009143 TPR_3:0.001143 TPR_4:0.001143 validset
+AUC:0.797018 TPR_2:0.009655 TPR_3:0.001379 TPR_4:0.001379 fake
+epoch:000 batch:000004 loss:0.62391 avgloss:0.64866
